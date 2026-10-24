@@ -4,3 +4,4 @@
 build/
 *.so
 CMakeCache.txt
+archive/
