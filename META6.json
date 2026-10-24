@@ -1,7 +1,8 @@
 {
-  "auth": "zef:rawleyfowler",
+  "auth": "zef:grizzlysmit",
   "authors": [
-    "Rawley Fowler"
+    "Rawley Fowler",
+    "Francis Grizzly Smit <grizzly@smit.id.au>"
   ],
   "build-depends": [
   ],
@@ -12,19 +13,19 @@
   ],
   "description": "A zef builder to aid in binding CMake projects to Raku",
   "license": "Artistic-2.0",
-  "name": "Distribution::Builder::Cmake",
+  "name": "Distribution::Builder::Cmake-alt",
   "perl": "6.d",
   "provides": {
-    "Distribution::Builder::Cmake": "lib/Distribution/Builder/Cmake.rakumod"
+    "Distribution::Builder::Cmake-alt": "lib/Distribution/Builder/Cmake-alt.rakumod"
   },
   "resources": [
   ],
-  "source-url": "https://github.com/rawleyfowler/Distribution-Builder-Cmake.git",
+  "source-url": "https://github.com/grizzlysmit/Distribution-Builder-Cmake-alt.git",
 	"tags": [
 		"C++",
 		"CMake"
   ],
   "test-depends": [
   ],
-  "version": "0.0.10"
+  "version": "0.0.1"
 }
