@@ -1,0 +1,17 @@
+{
+    "markdown-path": "README.md",
+    "exts": [
+        "rakumod",
+        "raku",
+        "rakudoc"
+    ],
+    "bin": "bin",
+    "docs": "doc",
+    "separate-markdown-files": false,
+    "lib": "lib",
+    "name": "Distribution::Builder::Cmake-alt",
+    "only-app": false,
+    "comment": "setting this up",
+    "additional-pod-files": [
+    ]
+}
