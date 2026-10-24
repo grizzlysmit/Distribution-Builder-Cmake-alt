@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.1>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.2>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.1
+=VERSION 0.0.2
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -125,7 +125,7 @@ method build(IO() $work-dir = $*CWD) {
     # Build
     my $build-dir = "$cmake-src-dir/build";
     mkdir $build-dir;
-    die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir && cmake .. && make";
+    die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
     my $library = "lib{ %meta<lib> }.so"; # If your cmake is setup properly, then it should start with 'lib'
@@ -155,7 +155,12 @@ method build(IO() $work-dir = $*CWD) {
     mkdir $install-location;
 
     # Install
-    die "Failed to install lib: $library" unless copy "$build-dir/$library", "$install-location/$library";
+    my $from = "$build-dir/$library";
+    my $to   = "$install-location/$library";
+    dd $from, $to;
+    shell "exa -F -laahigHb --color-scale --time-style=full-iso --icons=always $from 1>&2";
+    die "Failed to install lib: $library" unless $to.IO.copy($from);
+    shell "exa -F -laahigHb --color-scale --time-style=full-iso --icons=always $to 1>&2";
 
     if %libraries {
         my $cwd = $*CWD;
