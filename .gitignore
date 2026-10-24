@@ -1,3 +1,4 @@
+.*.swp
 .precomp/
 /Distribution-Builder-Cmake-*
 build/
