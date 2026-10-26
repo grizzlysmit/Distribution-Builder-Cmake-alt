@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.4>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.6>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.4
+=VERSION 0.0.6
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -102,14 +102,16 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 has %.meta;
 
 method build(IO() $work-dir = $*CWD) {
-    #my IO:Path $path = "$*HOME/log/debug.log".IO;
-    #$path.dirname.mkdir;
-    my $path = "/dev/tty".IO;
+    my IO::Path:D $path = "$*HOME/log/debug.log".IO;
+    $path.dirname.IO.mkdir;
+    #my $path = "/dev/tty".IO;
     #my IO::Handle:D $handle = $path.open: :append, :create, :mode<rw>;
-    my IO::Handle:D $handle = $path.open: :append, :mode<rw>, :out-buffer(False);
+    my IO::Handle:D $handle = $path.open: :append, :create, :mode<rw>, :out-buffer(False);
     $*OUT = $handle;
     $*ERR = $handle;
+    $handle.say: '%!meta = ', %!meta.raku;
     my %meta = %!meta<build>;
+    $handle.say: '%meta = ', %meta.raku;
     die 'You need CMake to install this package!' unless shell 'which cmake';
     die 'You need Make to install this package!' unless shell 'which make';
 
@@ -139,48 +141,64 @@ method build(IO() $work-dir = $*CWD) {
     chdir($build-dir);
     $r = run 'cmake', '..', :out($handle), :err($handle);
     $r = run 'make', :out($handle), :err($handle);
+    chdir($cwd);
     #die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
     my $library = "lib{ %meta<lib> }.so"; # If your cmake is setup properly, then it should start with 'lib'
+    $handle.say: '$library = ', $library.raku;
     my %libraries;
     my %lib-versions;
     with %meta«lib-versions» {
-        %lib-versions = %{%meta«lib-versions»};
+        %lib-versions = %meta«lib-versions»;
+        $handle.say: '%lib-versions = ', %lib-versions.raku;
         for %lib-versions.kv -> $ver, $to {
-            next if $ver ne '';
             if $ver eq '' {
                 %libraries{$library.Str} = "{$library}.$to";
             } else {
                 %libraries{"{$library}.$ver"} = "{$library}.$to";
             }
         } # for %lib-versions.kv -> $ver, $to #
+        $handle.say: '%libraries = ', %libraries.raku;
     } # with %meta«lib-versions» #
     with %meta«master-lib-version» {
         my $ver   = %meta«master-lib-version»;
         $library ~= ".$ver";
     }
-    #unlink "$work-dir/$library" if "$work-dir/$library".IO.e;
+    $handle.say: '$library = ', $library.raku;
+    unlink "$library" if "$library".IO.e;
 
     # Prepare install location
     my $install = %meta«install» // "$work-dir/resources/libraries";
     #$install ~= '/';
-    my $install-location = $install;
+    my $install-location;
+    if $install.IO.is-relative {
+        $install-location = "$work-dir/$install";
+    } else {
+        $install-location = $install;
+    }
     mkdir $install-location;
 
     # Install
     my $from = "$build-dir/$library";
     my $to   = "$install-location/$library";
-    dd $from, $to;
-    shell "exa -F -laahigHb --color-scale --time-style=full-iso --icons=always $from 1>&2";
-    die "Failed to install lib: $library" unless $to.IO.copy($from);
-    shell "exa -F -laahigHb --color-scale --time-style=full-iso --icons=always $to 1>&2";
+    $handle.say: '$from = ', $from.raku;
+    $handle.say: '$to = ', $to.raku;
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $from, :out($handle), :err($handle);
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to.IO.dirname, :out($handle), :err($handle);
+    $to.IO.unlink() if $to.IO ~~ :e;
+    die "Failed to install lib: $library" unless $from.IO.copy($to.IO);
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle);
 
     if %libraries {
         chdir("$install-location".IO);
-        for %libraries.kv -> $lib, $to {
-            "$to".IO.unlink if "$to".IO ~~ :e;
-            "$to".IO.symlink("$lib".IO, :!absolute);
+        my @libs = %libraries.pairs.sort( { $^a.value leg $^b.value } ).reverse;
+        $handle.say: '@libs = ', @libs.raku;
+        for @libs -> $pair {
+            my $link   = $pair.key;
+            my $target = $pair.value;
+            "$link".IO.unlink if "$link".IO ~~ :e;
+            "$target".IO.symlink("$link".IO, :!absolute);
         }
     }
     chdir($cwd);

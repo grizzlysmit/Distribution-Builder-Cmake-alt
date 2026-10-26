@@ -1,23 +1,25 @@
 use Test;
 use Distribution::Builder::Cmake-alt;
 
-plan 2;
+plan 4;
 
 my %build =
-	lib => 'test',
-	src-dir => 'cc',
-	install => 'resources/libraries',
-    "master-lib-version"=> "1.0.0",
-    "lib-versions" => {
-        "1" => "1.0.0",
-        "" => "1"
-    };
+            lib => 'test',
+            src-dir => 'cc',
+            install => 'resources/libraries',
+            "master-lib-version"=> "1.0.0",
+            "lib-versions" => {
+                "1" => "1.0.0",
+                "" => "1"
+        };
 
 my %meta = Map.new: (:%build);
 
 my $builder = Distribution::Builder::Cmake-alt.new(:%meta);
 
-lives-ok { $builder.build("$*CWD/t") };
-ok 't/resources/libraries/libtest.so'.IO.e, 'Did compile properly?';
+lives-ok({ $builder.build("$*CWD/t")}, "succeeded" );
+ok({ 't/resources/libraries/libtest.so.1.0.0'.IO.e }, "success libtest.so.1.0.0 exists!");
+ok({ 't/resources/libraries/libtest.so.1'.IO.e }, "success libtest.so.1 exists!");
+ok({ 't/resources/libraries/libtest.so'.IO.e }, "success libtest.so exists!");
 
 done-testing;
