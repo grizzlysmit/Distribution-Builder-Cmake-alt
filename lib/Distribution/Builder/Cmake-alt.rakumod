@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.3>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.4>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.3
+=VERSION 0.0.4
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -113,6 +113,8 @@ method build(IO() $work-dir = $*CWD) {
     die 'You need CMake to install this package!' unless shell 'which cmake';
     die 'You need Make to install this package!' unless shell 'which make';
 
+    my Proc $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', :out($handle), :err($handle);
+
     # Prepare to build
     my $src-dir;
     my $cmake-src-dir;
@@ -127,12 +129,17 @@ method build(IO() $work-dir = $*CWD) {
         $src-dir       = '.';
         $cmake-src-dir = "$work-dir/cc";
     }
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle);
     die "$cmake-src-dir is not a directory." unless $cmake-src-dir.IO.e && $cmake-src-dir.IO.d;
 
+    my $cwd = $*CWD;
     # Build
     my $build-dir = "$cmake-src-dir/build";
     mkdir $build-dir;
-    die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
+    chdir($build-dir);
+    $r = run 'cmake', '..', :out($handle), :err($handle);
+    $r = run 'make', :out($handle), :err($handle);
+    #die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
     my $library = "lib{ %meta<lib> }.so"; # If your cmake is setup properly, then it should start with 'lib'
@@ -170,14 +177,13 @@ method build(IO() $work-dir = $*CWD) {
     shell "exa -F -laahigHb --color-scale --time-style=full-iso --icons=always $to 1>&2";
 
     if %libraries {
-        my $cwd = $*CWD;
         chdir("$install-location".IO);
         for %libraries.kv -> $lib, $to {
             "$to".IO.unlink if "$to".IO ~~ :e;
             "$to".IO.symlink("$lib".IO, :!absolute);
         }
-        chdir($cwd);
     }
+    chdir($cwd);
 
     True;
 }
