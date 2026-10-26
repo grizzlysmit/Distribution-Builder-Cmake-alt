@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.13)
 project(test VERSION 1.0.0 DESCRIPTION "My lib!")
 add_library(test SHARED test.cpp)
 set_target_properties(test PROPERTIES VERSION ${PROJECT_VERSION})

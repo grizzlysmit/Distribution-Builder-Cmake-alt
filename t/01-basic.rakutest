@@ -1,16 +1,21 @@
 use Test;
-use Distribution::Builder::Cmake;
+use Distribution::Builder::Cmake-alt;
 
 plan 2;
 
 my %build =
 	lib => 'test',
 	src-dir => 'cc',
-	install => 'resources/libraries';
+	install => 'resources/libraries',
+    "master-lib-version"=> "1.0.0",
+    "lib-versions" => {
+        "1" => "1.0.0",
+        "" => "1"
+    };
 
 my %meta = Map.new: (:%build);
 
-my $builder = Distribution::Builder::Cmake.new(:%meta);
+my $builder = Distribution::Builder::Cmake-alt.new(:%meta);
 
 lives-ok { $builder.build("$*CWD/t") };
 ok 't/resources/libraries/libtest.so'.IO.e, 'Did compile properly?';

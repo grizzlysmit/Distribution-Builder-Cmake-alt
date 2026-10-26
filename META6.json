@@ -23,7 +23,8 @@
   "source-url": "https://github.com/grizzlysmit/Distribution-Builder-Cmake-alt.git",
 	"tags": [
 		"C++",
-		"CMake"
+		"CMake",
+        "Cmake-alt"
   ],
   "test-depends": [
   ],
