@@ -6,3 +6,5 @@ build/
 CMakeCache.txt
 archive/
 t/resources/
+t/cc/libraries/
+resources/
