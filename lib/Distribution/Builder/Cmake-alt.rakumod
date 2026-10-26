@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.2>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.3>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.2
+=VERSION 0.0.3
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -102,6 +102,13 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 has %.meta;
 
 method build(IO() $work-dir = $*CWD) {
+    #my IO:Path $path = "$*HOME/log/debug.log".IO;
+    #$path.dirname.mkdir;
+    my $path = "/dev/tty".IO;
+    #my IO::Handle:D $handle = $path.open: :append, :create, :mode<rw>;
+    my IO::Handle:D $handle = $path.open: :append, :mode<rw>, :out-buffer(False);
+    $*OUT = $handle;
+    $*ERR = $handle;
     my %meta = %!meta<build>;
     die 'You need CMake to install this package!' unless shell 'which cmake';
     die 'You need Make to install this package!' unless shell 'which make';
