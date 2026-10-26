@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.7>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.9>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.7
+=VERSION 0.0.9
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -122,17 +122,21 @@ method build(IO() $work-dir = $*CWD) {
     my $cmake-src-dir;
     with %meta«src-dir» {
         $src-dir = %meta«src-dir»;
-        if $src-dir ne '.' {
-            $cmake-src-dir = "$work-dir/$src-dir";
+        if $src-dir eq '.' || $src-dir eq '' {
+            $cmake-src-dir = '.';
         } else {
-            $cmake-src-dir = $work-dir;
+            $cmake-src-dir = "$src-dir";
         }
     } else {
         $src-dir       = '.';
-        $cmake-src-dir = "$work-dir/cc";
+        $cmake-src-dir = "cc";
     }
     $handle.say: '$cmake-src-dir = ', $cmake-src-dir.raku;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle);
+    if $cmake-src-dir eq '.' {
+        $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', :out($handle), :err($handle);
+    } else {
+        $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle);
+    }
     die "$cmake-src-dir is not a directory." unless $cmake-src-dir.IO.e && $cmake-src-dir.IO.d;
 
     my $cwd = $*CWD;
@@ -143,7 +147,16 @@ method build(IO() $work-dir = $*CWD) {
     chdir($build-dir);
     $r = run 'cmake', '..', :out($handle), :err($handle);
     $r = run 'make', :out($handle), :err($handle);
-    chdir($cwd);
+    if $build-dir eq 'build' || $build-dir eq './build' {
+        chdir('..');
+    } else {
+        my $tmp = $build-dir;
+        repeat {
+            chdir('..');
+            $tmp = $tmp.IO.dirname;
+        } until $tmp eq '' || $tmp eq '/' || $tmp eq '.';
+    }
+    #chdir($cwd);
     #die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
@@ -171,14 +184,10 @@ method build(IO() $work-dir = $*CWD) {
     unlink "$library" if "$library".IO.e;
 
     # Prepare install location
-    my $install = %meta«install» // "$work-dir/resources/libraries";
+    my $install = %meta«install» // "libraries";
     #$install ~= '/';
     my $install-location;
-    if $install.IO.is-relative {
-        $install-location = "$work-dir/$install";
-    } else {
-        $install-location = $install;
-    }
+    $install-location = $install;
     mkdir $install-location;
 
     # Install
@@ -203,7 +212,7 @@ method build(IO() $work-dir = $*CWD) {
             "$target".IO.symlink("$link".IO, :!absolute);
         }
     }
-    chdir($cwd);
-
+    $r = run 'pwd', :out($handle), :err($handle);
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', :out($handle), :err($handle);
     True;
 }

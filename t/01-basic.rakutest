@@ -5,8 +5,8 @@ plan 4;
 
 my %build =
             lib => 'test',
-            src-dir => 'cc',
-            install => 'resources/libraries',
+            src-dir => 't/cc',
+            install => 't/cc/libraries',
             "master-lib-version"=> "1.0.0",
             "lib-versions" => {
                 "1" => "1.0.0",
