@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.6>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.7>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.6
+=VERSION 0.0.7
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -131,6 +131,7 @@ method build(IO() $work-dir = $*CWD) {
         $src-dir       = '.';
         $cmake-src-dir = "$work-dir/cc";
     }
+    $handle.say: '$cmake-src-dir = ', $cmake-src-dir.raku;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle);
     die "$cmake-src-dir is not a directory." unless $cmake-src-dir.IO.e && $cmake-src-dir.IO.d;
 
@@ -138,6 +139,7 @@ method build(IO() $work-dir = $*CWD) {
     # Build
     my $build-dir = "$cmake-src-dir/build";
     mkdir $build-dir;
+    $handle.say: '$build-dir = ', $build-dir.raku;
     chdir($build-dir);
     $r = run 'cmake', '..', :out($handle), :err($handle);
     $r = run 'make', :out($handle), :err($handle);
