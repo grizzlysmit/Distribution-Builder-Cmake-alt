@@ -116,6 +116,7 @@ method build(IO() $work-dir = $*CWD) {
     die 'You need Make to install this package!' unless shell 'which make';
 
     my Proc $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', :out($handle), :err($handle);
+    $r = run 'pwd', :out($handle), :err($handle);
 
     # Prepare to build
     my $src-dir;
@@ -123,25 +124,30 @@ method build(IO() $work-dir = $*CWD) {
     with %meta«src-dir» {
         $src-dir = %meta«src-dir»;
         if $src-dir eq '.' || $src-dir eq '' {
-            $cmake-src-dir = '.';
+            $cmake-src-dir = '';
         } else {
             $cmake-src-dir = "$src-dir";
         }
     } else {
-        $src-dir       = '.';
-        $cmake-src-dir = "cc";
+        $src-dir       = '';
+        $cmake-src-dir = "";
     }
     $handle.say: '$cmake-src-dir = ', $cmake-src-dir.raku;
-    if $cmake-src-dir eq '.' {
+    if $cmake-src-dir eq '.' && $cmake-src-dir eq '' {
         $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', :out($handle), :err($handle);
     } else {
         $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle);
     }
-    die "$cmake-src-dir is not a directory." unless $cmake-src-dir.IO.e && $cmake-src-dir.IO.d;
+    die "$cmake-src-dir is not a directory." unless $cmake-src-dir eq '' || $cmake-src-dir eq '.' || ($cmake-src-dir.IO.e && $cmake-src-dir.IO.d);
 
     my $cwd = $*CWD;
     # Build
-    my $build-dir = "$cmake-src-dir/build";
+    my $build-dir;
+    if $cmake-src-dir eq '' || $cmake-src-dir eq '.' {
+        $build-dir = 'build';
+    }else {
+        $build-dir = "$cmake-src-dir/build";
+    }
     mkdir $build-dir;
     $handle.say: '$build-dir = ', $build-dir.raku;
     chdir($build-dir);
