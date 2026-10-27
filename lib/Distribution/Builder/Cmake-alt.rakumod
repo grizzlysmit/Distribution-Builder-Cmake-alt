@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.23>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.24>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -22,7 +22,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.23
+=VERSION 0.0.24
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -110,16 +110,14 @@ method build(IO() $work-dir = $*CWD) {
         $debug = %!meta«build»«debug».Bool;
     }
     my IO::Path:D $log = "/dev/null".IO;
-    if $debug {
-        with %!meta«build»«log» {
-            $log = %!meta«build»«log».IO;
-        }
+    with %!meta«build»«log» {
+        $log = %!meta«build»«log».IO;
     }
     $log.dirname.IO.mkdir if $debug && $log !~~ rx@ ^^ '/dev/' .* $$ @;
     #my $log = "/dev/tty".IO;
     #my IO::Handle:D $handle = $log.open: :append, :create, :mode<rw>;
-    my IO::Handle:D $handle = "/dev/null".IO.open: :append, :mode<rw>, :out-buffer(False);
-    $handle = $log.open: :append, :create, :mode<rw>, :out-buffer(False) if $debug;
+    my Bool:D $create = $log !~~ rx@ ^^ '/dev/' .* $$ @;
+    my IO::Handle:D $handle = $log.open: :append, :$create, :mode<rw>, :out-buffer(False);
     $*OUT = $handle;
     $*ERR = $handle;
     $handle.say: '%!meta = ', %!meta.raku if $debug;
