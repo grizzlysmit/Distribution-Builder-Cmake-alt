@@ -162,21 +162,28 @@ method build(IO() $work-dir = $*CWD) {
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '..', :out($handle), :err($handle) if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', "../$source", :out($handle), :err($handle) if $debug;
+    $handle.say: "cmake .." if $debug;
     $r = run 'cmake', '..', :out($handle), :err($handle);
+    $handle.say: "make" if $debug;
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
     $r = run 'make', :out($handle), :err($handle);
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
-    chdir('..');
-    #`«««
+    #«««
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
     if $build-dir eq 'build' || $build-dir eq './build' {
+        chdir('..');
+        $r = run 'pwd', :out($handle), :err($handle) if $debug;
     } else {
         my $tmp = $build-dir;
-        repeat {
+        while !($tmp eq '' || $tmp eq '/' || $tmp eq '.') {
+            $handle.say: '$tmp = ', $tmp.raku if $debug;
             chdir('..');
+            $r = run 'pwd', :out($handle), :err($handle) if $debug;
             $tmp = $tmp.IO.dirname;
-        } until $tmp eq '' || $tmp eq '/' || $tmp eq '.';
+        }
+        $handle.say: '$tmp = ', $tmp.raku if $debug;
     }
     #»»»
-    #chdir($cwd);
     #die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
@@ -206,9 +213,9 @@ method build(IO() $work-dir = $*CWD) {
     my $install-location;
     $install-location = $install;
     mkdir $install-location;
-    chdir("$install-location".IO);
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $handle.say: '$library = ', $library.raku if $debug;
-    unlink "$library" if "$library".IO.e;
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
 
 
     # Install
@@ -218,10 +225,12 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: '$to = ', $to.raku if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $from, :out($handle), :err($handle) if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to.IO.dirname, :out($handle), :err($handle) if $debug;
-    $to.IO.unlink() if $to.IO ~~ :e;
+    #$to.IO.unlink() if $to.IO ~~ :e;
     die "Failed to install lib: $library" unless $from.IO.copy($to.IO);
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle) if $debug;
 
+    chdir("$install-location".IO);
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle) if $debug;
     if %libraries {
         my @libs = %libraries.pairs.sort( { $^a.value leg $^b.value } ).reverse;
         $handle.say: '@libs = ', @libs.raku if $debug;
