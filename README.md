@@ -31,7 +31,7 @@ Francis Grizzly Smit (grizzly@smit.id.au)
 VERSION
 =======
 
-0.0.24
+0.0.25
 
 TITLE
 =====
@@ -83,6 +83,7 @@ Assuming your Raku project keeps its CMake project in a folder called `my-cmake-
             "": "0"
         },
             "source":   "src",
+            "log":      "path",
             "debug":    false
     }
     ...

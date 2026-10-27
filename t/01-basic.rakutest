@@ -14,7 +14,7 @@ my %build =
             },
             "source" => "",
             "debug"  => False,
-            "log"    => "/dev/tty";
+            "log"    => "/dev/null";
 
 my %meta = Map.new: (:%build);
 
