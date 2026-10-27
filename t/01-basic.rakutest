@@ -13,7 +13,7 @@ my %build =
                 "" => "1"
             },
             "source"   => "",
-            "debug" => True;
+            "debug" => False;
 
 my %meta = Map.new: (:%build);
 
