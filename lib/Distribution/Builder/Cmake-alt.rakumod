@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.21>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.22>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -106,15 +106,18 @@ has %.meta;
 
 method build(IO() $work-dir = $*CWD) {
     my Bool:D $debug = False;
-    with %!meta«buil»«debug» {
-        $debug = %!meta«buil»«debug».Bool;
+    with %!meta«build»«debug» {
+        $debug = %!meta«build»«debug».Bool;
     }
-    my IO::Path:D $path = "$*HOME/log/debug.log".IO;
-    $path.dirname.IO.mkdir if $debug;
-    #my $path = "/dev/tty".IO;
-    #my IO::Handle:D $handle = $path.open: :append, :create, :mode<rw>;
-    my IO::Handle:D $handle = "/dev/tty".IO.open: :append, :mode<rw>, :out-buffer(False);
-    $handle = $path.open: :append, :create, :mode<rw>, :out-buffer(False) if $debug;
+    my IO::Path:D $log = "/dev/null".IO;
+    with %!meta«build»«log» {
+        $log = %!meta«build»«log»;
+    }
+    $log.dirname.IO.mkdir if $debug && $log !~~ rx@ ^^ '/dev/' .* $$ @;
+    #my $log = "/dev/tty".IO;
+    #my IO::Handle:D $handle = $log.open: :append, :create, :mode<rw>;
+    my IO::Handle:D $handle = "/dev/null".IO.open: :append, :mode<rw>, :out-buffer(False);
+    $handle = $log.open: :append, :create, :mode<rw>, :out-buffer(False) if $debug;
     $*OUT = $handle;
     $*ERR = $handle;
     $handle.say: '%!meta = ', %!meta.raku if $debug;

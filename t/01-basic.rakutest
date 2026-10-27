@@ -12,8 +12,9 @@ my %build =
                 "1" => "1.0.0",
                 "" => "1"
             },
-            "source"   => "",
-            "debug" => False;
+            "source" => "",
+            "debug"  => False,
+            "log"    => "/dev/tty";
 
 my %meta = Map.new: (:%build);
 
