@@ -1,5 +1,5 @@
 use v6.d;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.14>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.15>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -21,7 +21,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.14
+=VERSION 0.0.15
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -157,6 +157,7 @@ method build(IO() $work-dir = $*CWD) {
         $source = %meta«source» // '';
     }
     mkdir $build-dir;
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $handle.say: '$build-dir = ', $build-dir.raku if $debug;
     chdir($build-dir);
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
@@ -168,7 +169,6 @@ method build(IO() $work-dir = $*CWD) {
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
     $r = run 'make', :out($handle), :err($handle);
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
-    #«««
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
     if $build-dir eq 'build' || $build-dir eq './build' {
         chdir('..');
@@ -183,7 +183,7 @@ method build(IO() $work-dir = $*CWD) {
         }
         $handle.say: '$tmp = ', $tmp.raku if $debug;
     }
-    #»»»
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
     #die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
@@ -221,6 +221,7 @@ method build(IO() $work-dir = $*CWD) {
     # Install
     my $from = "$build-dir/$library";
     my $to   = "$install-location/$library";
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $handle.say: '$from = ', $from.raku if $debug;
     $handle.say: '$to = ', $to.raku if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $from, :out($handle), :err($handle) if $debug;
@@ -228,8 +229,11 @@ method build(IO() $work-dir = $*CWD) {
     #$to.IO.unlink() if $to.IO ~~ :e;
     die "Failed to install lib: $library" unless $from.IO.copy($to.IO);
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle) if $debug;
+    $handle.say: '$install-location = ', $install-location.raku if $debug;
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
 
     chdir("$install-location".IO);
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle) if $debug;
     if %libraries {
         my @libs = %libraries.pairs.sort( { $^a.value leg $^b.value } ).reverse;
