@@ -31,7 +31,7 @@ Francis Grizzly Smit (grizzly@smit.id.au)
 VERSION
 =======
 
-0.0.18
+0.0.19
 
 TITLE
 =====
@@ -81,7 +81,9 @@ Assuming your Raku project keeps its CMake project in a folder called `my-cmake-
         "lib-versions": {
             "0": "0.0.1",
             "": "0"
-        }
+        },
+            "source":   "src",
+            "debug":    false
     }
     ...
 }
