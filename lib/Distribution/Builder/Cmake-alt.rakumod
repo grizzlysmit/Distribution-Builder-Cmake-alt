@@ -152,27 +152,29 @@ method build(IO() $work-dir = $*CWD) {
         $build-dir = 'build';
     }else {
         $build-dir = "$cmake-src-dir/build";
+        chdir($cmake-src-dir.IO);
     }
     my Str:D $source = '';
     with %meta«source» {
         $source = %meta«source» // '';
     }
-    if $build-dir.IO ~~ :d {
-        rmtree($build-dir.IO);
+    # start with a clean empty build directory #
+    if "build".IO ~~ :d {
+        rmtree("build".IO);
     } else {
-        $build-dir.IO.unlink();
+        "build".IO.unlink();
     }
-    mkdir $build-dir;
+    "build".IO.mkdir;
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $handle.say: '$build-dir = ', $build-dir.raku if $debug;
-    chdir($build-dir);
+    chdir("build".IO);
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '..', :out($handle), :err($handle) if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', "../$source", :out($handle), :err($handle) if $debug;
     $handle.say: "cmake .." if $debug;
     $r = run 'cmake', '..', :out($handle), :err($handle);
-    $handle.say: "make" if $debug;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
+    $handle.say: "make" if $debug;
     $r = run 'make', :out($handle), :err($handle);
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
