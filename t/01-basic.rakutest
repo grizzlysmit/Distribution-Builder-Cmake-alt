@@ -19,9 +19,9 @@ my %meta = Map.new: (:%build);
 
 my $builder = Distribution::Builder::Cmake-alt.new(:%meta);
 
-lives-ok({ $builder.build("$*CWD/t")}, "succeeded" );
-ok({ 't/resources/libraries/libtest.so.1.0.0'.IO.e }, "success libtest.so.1.0.0 exists!");
-ok({ 't/resources/libraries/libtest.so.1'.IO.e }, "success libtest.so.1 exists!");
-ok({ 't/resources/libraries/libtest.so'.IO.e }, "success libtest.so exists!");
+lives-ok({ $builder.build("$*CWD/t")}, "build process" );
+ok({ 't/resources/libraries/libtest.so.1.0.0'.IO.e }, "does libtest.so.1.0.0 exist?");
+ok({ 't/resources/libraries/libtest.so.1'.IO.e }, "does libtest.so.1 exist?");
+ok({ 't/resources/libraries/libtest.so'.IO.e }, "does libtest.so exist?");
 
 done-testing;

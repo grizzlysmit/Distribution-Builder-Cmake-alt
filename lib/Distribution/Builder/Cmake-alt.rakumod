@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<0.0.20>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<0.0.21>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -22,7 +22,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 0.0.20
+=VERSION 0.0.21
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -105,23 +105,24 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 has %.meta;
 
 method build(IO() $work-dir = $*CWD) {
+    my Bool:D $debug = False;
+    with %!meta«buil»«debug» {
+        $debug = %!meta«buil»«debug».Bool;
+    }
     my IO::Path:D $path = "$*HOME/log/debug.log".IO;
-    $path.dirname.IO.mkdir;
+    $path.dirname.IO.mkdir if $debug;
     #my $path = "/dev/tty".IO;
     #my IO::Handle:D $handle = $path.open: :append, :create, :mode<rw>;
-    my IO::Handle:D $handle = $path.open: :append, :create, :mode<rw>, :out-buffer(False);
+    my IO::Handle:D $handle = "/dev/tty".IO.open: :append, :mode<rw>, :out-buffer(False);
+    $handle = $path.open: :append, :create, :mode<rw>, :out-buffer(False) if $debug;
     $*OUT = $handle;
     $*ERR = $handle;
-    $handle.say: '%!meta = ', %!meta.raku;
+    $handle.say: '%!meta = ', %!meta.raku if $debug;
     my %meta = %!meta<build>;
-    $handle.say: '%meta = ', %meta.raku;
+    $handle.say: '%meta = ', %meta.raku if $debug;
     die 'You need CMake to install this package!' unless shell 'which cmake';
     die 'You need Make to install this package!' unless shell 'which make';
 
-    my Bool:D $debug = False;
-    with %meta«debug» {
-        $debug = %meta«debug».Bool;
-    }
     my Proc $r;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
