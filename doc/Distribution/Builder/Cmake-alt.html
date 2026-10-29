@@ -415,6 +415,8 @@ hr {
     &quot;build&quot;: {
         &quot;lib&quot;: &quot;my-lib&quot;,
         &quot;src-dir&quot;: &quot;my-cmake-project&quot;,
+        &quot;install&quot;: &quot;/usr/local/lib&quot;,
+        &quot;install-local&quot;: &quot;$*HOME/lib&quot;,
         &quot;master-lib-version&quot;: &quot;0.0.1&quot;,
         &quot;lib-versions&quot;: {
             &quot;0&quot;: &quot;0.0.1&quot;,
@@ -429,6 +431,37 @@ hr {
 
 
 </pre>
+<p>Where </p>
+<ul><li><p><code>lib</code> is the name of your lib and is mandatory.</p>
+</li>
+<li><p><code>src-dir</code> is the location of your library and is mandatory it should be relative to the working directory or it can be an empty string or a &quot;.&quot;</p>
+</li>
+<li><p><code>install</code> is optional and specifies the location to install the libraries (lib{$lib}.so files) it should be an absolute path otherwise the install would achieve nothing (defaults to <code>/usr/local/lib</code>). <strong>NB</strong> this field supports expandable patterns <code>~/</code>, <code>$*HOME/</code>, <code>$HOME/</code>, <code>{$*HOME}/</code> and <code>{$HOME}/</code> all expand to the user home directory followed by a <code>/</code> and <code>~username</code> will expand to usernames dome dir.</p>
+</li>
+<li><p><code>install-local</code> is optional and specifies the location to install the libraries if installing locally (lib{$lib}.so files) it should be a path inside the users users directory tree, otherwise the install would achieve nothing (defaults to <code>$HOME/lib</code>). <strong>NB</strong> this field supports expandable patterns <code>~/</code>, <code>$*HOME/</code>, <code>$HOME/</code>, <code>{$*HOME}/</code> and <code>{$HOME}/</code> all expand to the user home directory followed by a <code>/</code> and <code>~username</code> will expand to usernames dome dir.</p>
+</li>
+<li><p><code>master-lib-version</code> specifies the version number to put on the .so file (i.e. lib{$lib}.so.{$master-lib-version}) but you can leave it as an empty sting.</p>
+</li>
+<li><p><code>lib-versions</code> a collection of mappings to specify a list of symbolic links to the library. The example above would produce </p>
+</li>
+<ul><li><pre class="pod-block-code">$ exa -F -laahigHb --color-scale --time-style=full-iso --icons=always /usr/local/lib/
+   inode Permissions Links Size User Group Date Modified                       Name
+15614859 drwxr-xr-x      3    - root root  2026-10-28 17:39:53.989170059 +1100  ./
+15466504 drwxr-xr-x     11    - root root  2026-04-23 12:15:04.000000000 +1100  ../
+15604140 lrwxrwxrwx      1    - root root  2026-10-28 17:39:53.989170059 +1100  libmy-lib.so -&gt; libmy-lib.so.0*
+15604139 lrwxrwxrwx      1    - root root  2026-10-28 17:39:53.989170059 +1100  libmy-lib.so.0 -&gt; libmy-lib.so.0.0.1*
+15604115 .rwxr-xr-x      1 22Ki root root  2026-10-28 17:39:53.924168331 +1100  libmy-lib.so.0.0.1*
+
+</pre>
+</li>
+</ul>
+<li><p><code>source</code> specifies the name of the source dir relative to the <code>src-dir</code> can be <code>&quot;&quot;</code> to specify that the source is in <code>src-dir</code> itself.</p>
+</li>
+<li><p><code>log</code> the place to spit logging info to defaults to <code>/dev/null</code> optional use <code>/dev/tty</code> to send debug data into the terminal that called <code>zef</code> or a file name, like Install and install-local this supports <code>~/</code>, <code>$*HOME/</code>, <code>$HOME/</code>, <code>{$*HOME}/</code> and <code>{$HOME}/</code> resolution.</p>
+</li>
+<li><p><code>debug</code> if <code>true</code> then spit as much details into the log <code>$log</code> can be <code>/dev/null</code> to throw away the results or <code>/dev/tty</code> to write to the terminal, or a file.</p>
+</li>
+</ul>
 <p><strong>Note:</strong> You may also provide a <code>install</code> field to specify the directory to install the library. This defaults to: <code>resources/libraries/lib&lt;your-lib&gt;.so</code></p>
 <p>The typical CMake project will look like (assuming your lib is `my-lib`):</p>
 <pre class="pod-block-code">cmake_minimum_required(VERSION 3.11)
