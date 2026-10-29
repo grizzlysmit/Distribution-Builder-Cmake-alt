@@ -6,7 +6,7 @@
         "rakudoc"
     ],
     "bin": "bin",
-    "docs": "doc",
+    "docs": "resources/doc",
     "separate-markdown-files": false,
     "lib": "lib",
     "name": "Distribution::Builder::Cmake-alt",

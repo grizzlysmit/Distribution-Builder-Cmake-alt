@@ -6,7 +6,8 @@ plan 4;
 my %build =
             lib => 'test',
             src-dir => 't/cc',
-            install => 't/cc/libraries',
+            install => 'usr/local/lib', # need it not to polute the global system this is a test #
+            install-local => '$*HOME/lib',
             "master-lib-version"=> "1.0.0",
             "lib-versions" => {
                 "1" => "1.0.0",
