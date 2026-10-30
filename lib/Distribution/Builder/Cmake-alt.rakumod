@@ -130,8 +130,26 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 my $home = $*HOME;
 
 
-sub resolve-dir(Str $dir, Bool $relitive-to-home = True) returns Str is export {
-    my Str $Dir = $dir;
+has %.meta;
+
+
+method die-handle(IO::Handle:D $handle is copy, Str:D $msg --> Bool) {
+    with %!meta«build»«log» {
+        if %!meta«build»«log» ~~ rx/ ^^ '/dev/null' $$ / {
+            $handle = "/dev/tty".IO.open: :append, :mode<rw>, :out-buffer(False);
+        }
+    }
+    $handle.say: $msg;
+    X::AdHoc.from-slurpy(10, False, $msg).throw;
+}
+
+multi method resolve-dir(Any $dir, IO::Handle $handle, Bool $relitive-to-home = True --> False){
+    self.die-handle($handle, "bad value");
+}
+
+multi method resolve-dir(Str:D $dir, IO::Handle $handle, Bool $relitive-to-home = True --> Str) is export {
+    self.die-handle($handle, "bad value") without $dir;
+    my Str $Dir = ~$dir;
     #$Dir.say;
     $Dir = $home if $Dir eq '~';
     $Dir = $home if $Dir eq '$*HOME';
@@ -163,10 +181,8 @@ sub resolve-dir(Str $dir, Bool $relitive-to-home = True) returns Str is export {
     $Dir = "$home/$Dir" if $relitive-to-home && $Dir !~~ rx! ^^ \/ !;
     #$Dir.say;
     return $Dir;
-} # sub resolve-dir(Str $dir, Bool $relitive-to-home = True) returns Str is export #
+} # multi method resolve-dir(Str:D $dir, Bool $relitive-to-home = True --> Str) is export #
 
-
-has %.meta;
 
 method build(IO() $work-dir = $*CWD) {
     my Bool:D $debug = False;
@@ -175,7 +191,13 @@ method build(IO() $work-dir = $*CWD) {
     }
     my IO::Path:D $log = "/dev/null".IO;
     with %!meta«build»«log» {
-        $log = resolve-dir(%!meta«build»«log»).IO;
+        my Str:D $tmp = %!meta«build»«log»;
+        if $tmp eq '/dev/tty' {
+            $log = $tmp.IO;
+        } else {
+            my IO::Handle:D $handle-tmp = "/dev/tty".IO.open: :append, :mode<rw>, :out-buffer(False);
+            $log = self.resolve-dir($tmp, $handle-tmp).IO;
+        }
     }
     $log.dirname.IO.mkdir if $debug && $log.path !~~ rx@ ^^ '/dev/' .* $$ @;
     #my $log = "/dev/tty".IO;
@@ -187,8 +209,8 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: '%!meta = ', %!meta.raku if $debug;
     my %meta = %!meta<build>;
     $handle.say: '%meta = ', %meta.raku if $debug;
-    die 'You need CMake to install this package!' unless shell 'which cmake';
-    die 'You need Make to install this package!' unless shell 'which make';
+    self.die-handle($handle, 'You need CMake to install this package!') unless shell 'which cmake';
+    self.die-handle($handle, 'You need Make to install this package!') unless shell 'which make';
 
     my Proc $r;
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
@@ -214,7 +236,7 @@ method build(IO() $work-dir = $*CWD) {
     } else {
         $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle) if $debug;
     }
-    #die "$cmake-src-dir is not a directory." unless $cmake-src-dir eq '' || $cmake-src-dir eq '.' || ($cmake-src-dir.IO.e && $cmake-src-dir.IO.d);
+    #self.die-handle($handle, "$cmake-src-dir is not a directory.") unless $cmake-src-dir eq '' || $cmake-src-dir eq '.' || ($cmake-src-dir.IO.e && $cmake-src-dir.IO.d);
 
     # Build
     my $build-dir;
@@ -262,7 +284,6 @@ method build(IO() $work-dir = $*CWD) {
         $handle.say: '$tmp = ', $tmp.raku if $debug;
     }
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    #die 'Failed to run cmake, or compile this package.' unless shell "cd $build-dir 1>&2 && cmake .. 1>&2 && make 1>&2";
 
     # Prepare library target
     my $library = "lib{ %meta<lib> }.so"; # If your cmake is setup properly, then it should start with 'lib'
@@ -282,15 +303,30 @@ method build(IO() $work-dir = $*CWD) {
         $handle.say: '%libraries = ', %libraries.raku if $debug;
     } # with %meta«lib-versions» #
     # Prepare install location
-    my $install = %meta«install» // "/use/local/lib";
-    my $install-local = %meta«install-local»  // "$home/lib";
-    #$install ~= '/';
-    my $install-location;
-    if $*USER == 0 || resolve-dir($install).IO ~~ :rwx {
-        $install-location = resolve-dir($install);
-    } else {
-        $install-location = resolve-dir($install-local);
+    my Str:D $install = "/use/local/lib";
+    with %meta«install» {
+        $install = %meta«install»;
     }
+    my Str:D $install-local = "$home/lib";
+    with %meta«install-local» {
+        $install-local = %meta«install-local»;
+    }
+    #$install ~= '/';
+    my Str $install-location;
+    $handle.say: "$?FILE\[$?LINE\] \$install == {$install.raku}" if $debug;
+    my $tmp = self.resolve-dir($install, $handle);
+    $handle.say: "$?FILE\[$?LINE\] \$install == {$install.raku}" if $debug;
+    if $*USER == 0 || ($tmp.Bool && $tmp.IO ~~ :rwx) {
+        $install-location = $tmp;
+    } else {
+        $handle.say: "$?FILE\[$?LINE\] \$install == {$install.raku}" if $debug;
+        my $temp = self.resolve-dir($install-local, $handle);
+        $handle.say: "$?FILE\[$?LINE\] \$install == {$install.raku}" if $debug;
+        self.die-handle($handle, "bad value for install-local") unless $temp.Bool;
+        $install-location = $temp;
+    }
+    $handle.say: "$?FILE\[$?LINE\] \$install-local == {$install-local.raku}" if $debug;
+    $handle.say: "$?FILE\[$?LINE\] \$install-location == {$install-location.raku}" if $debug;
     mkdir $install-location;
     # remove all old libs #
     my $old-lib-pattern = "$install-location/$library";
@@ -352,17 +388,17 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: '$from = ', $from.raku if $debug;
     $handle.say: '$to = ', $to.raku if $debug;
     $handle.say: "$?FILE\[$?LINE\]" if $debug;
-    die "Failed to install lib: $library" unless $from.IO.copy($to.IO);
+    self.die-handle($handle, "Failed to install lib: $library") unless $from.IO.copy($to.IO);
     $handle.say: "$?FILE\[$?LINE\]" if $debug;
     my $man;
     with %meta«man» {
         $man = %meta«man»;
     }
-    my $man-name = '';
+    my Str:D $man-name = '';
     with $man {
         $man-name = $man.IO.basename;
     }
-    my $man-install = "/usr/local/man/man1{$man-name}";
+    my Str:D $man-install = "/usr/local/man/man1{$man-name}";
     with %meta«man-install» {
         $man-install = %meta«man-install»;
     }
@@ -370,44 +406,49 @@ method build(IO() $work-dir = $*CWD) {
     with %meta«man-install-local» {
         $man-install-local = %meta«man-install-local»;
     }
-    my $man-install-location;
-    if $*USER == 0 || resolve-dir($man-install).IO ~~ :rwx {
-        $man-install-location = resolve-dir($man-install);
+    my Str $man-install-location;
+    $handle.say: "$?FILE\[$?LINE\] \$man-install == {$man-install}" if $debug;
+    if $*USER == 0 || self.resolve-dir($man-install, $handle).IO ~~ :rwx {
+        $man-install-location = self.resolve-dir($man-install, $handle);
     } else {
-        $man-install-location = resolve-dir($man-install-local);
+        $man-install-location = self.resolve-dir($man-install-local, $handle);
     }
     $man-install-location.IO.dirname.IO.mkdir;
+    $handle.say: "$?FILE\[$?LINE\] \$man-install-location == {$man-install-location}" if $debug;
+    $handle.say: "$?FILE\[$?LINE\] \$man-install-location.IO.dirname == {$man-install-location.IO.dirname}" if $debug;
     with $man {
         $handle.say: '$man = ', $man.raku if $debug;
         $handle.say: '$man-install-location = ', $man-install-location.raku if $debug;
         if $man.IO ~~ :e {
             $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $man.IO.dirname, :out($handle), :err($handle) if $debug;
-            $handle.say: "$?FILE\[$?LINE\]" if $debug;
-            die "Failed to install man page {$man-name}" unless "$man".IO.copy($man-install-location.IO);
+            $handle.say: "$?FILE\[$?LINE\] \$man-install-location == {$man-install-location}" if $debug;
+            $handle.say: "$?FILE\[$?LINE\] \$man-install-location.IO.dirname == {$man-install-location.IO.dirname}" if $debug;
+            $man-install-location.IO.dirname.IO.mkdir;
+            self.die-handle($handle, "Failed to install man page {$man-name}") unless "$man".IO.copy($man-install-location.IO);
         }
         $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $man-install-location.IO.dirname, :out($handle), :err($handle) if $debug;
     }
-    my $html;
+    my Str $html;
     with %meta«html» {
         $html = %meta«html»;
     }
-    my $html-name = '';
+    my Str:D $html-name = '';
     with $html {
         $html-name = $html.IO.basename;
     }
-    my $html-install = "/usr/local/html/$html-name";
+    my Str:D $html-install = "/usr/local/html/$html-name";
     with %meta«html-install» {
         $html-install = %meta«html-install»;
     }
-    my $html-install-local = "$home/html/{$html-name}";
+    my Str:D $html-install-local = "$home/html/{$html-name}";
     with %meta«html-install-local» {
         $html-install-local = %meta«html-install-local»;
     }
-    my $html-install-location;
-    if $*USER == 0 || resolve-dir($html-install).IO ~~ :rwx {
-        $html-install-location = resolve-dir($html-install);
+    my Str $html-install-location;
+    if $*USER == 0 || self.resolve-dir($html-install, $handle).IO ~~ :rwx {
+        $html-install-location = self.resolve-dir($html-install, $handle);
     } else {
-        $html-install-location = resolve-dir($html-install-local);
+        $html-install-location = self.resolve-dir($html-install-local, $handle);
     }
     $html-install-location.IO.dirname.IO.mkdir;
     with $html {
@@ -415,7 +456,10 @@ method build(IO() $work-dir = $*CWD) {
         $handle.say: '$html-install-location = ', $html-install-location.raku if $debug;
         if $html.IO ~~ :e {
             $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $html.IO.dirname, :out($handle), :err($handle) if $debug;
-            die "Failed to install html page {$html-name}" unless $html.IO.copy($html-install-location.IO);
+            $handle.say: "$?FILE\[$?LINE\] \$html-install-location == {$html-install-location}" if $debug;
+            $handle.say: "$?FILE\[$?LINE\] \$html-install-location.IO.dirname == {$html-install-location.IO.dirname}" if $debug;
+            $html-install-location.IO.dirname.IO.mkdir;
+            self.die-handle($handle, "Failed to install html page {$html-name}") unless $html.IO.copy($html-install-location.IO);
         }
         $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $html-install-location.IO.dirname, :out($handle), :err($handle) if $debug;
     }
