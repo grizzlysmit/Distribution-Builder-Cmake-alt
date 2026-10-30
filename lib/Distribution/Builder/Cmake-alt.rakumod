@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<1.0.2>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<1.0.3>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -22,7 +22,7 @@ Table of Contents
 
 =NAME Gzz::Readline 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 1.0.2
+=VERSION 1.0.3
 =TITLE Gzz::Readline
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -145,8 +145,8 @@ method die-handle(IO::Handle:D $handle is copy, Str:D $msg --> Bool) {
 
 method subst-man-number(Str:D $man-param, $man-number --> Str:D ) {
     my Str:D $result = $man-param;
-    $result ~~ s:g/ '{' \h*'$man-number' \h* '}' / $man-number /;
-    $result ~~ s:g/ '$man-number' <?wb> / $man-number /;
+    $result ~~ s:g/ '{' \h*'$man-number' \h* '}' /$man-number/;
+    $result ~~ s:g/ '$man-number' <?wb> /$man-number/;
     return $result;
 }
 
