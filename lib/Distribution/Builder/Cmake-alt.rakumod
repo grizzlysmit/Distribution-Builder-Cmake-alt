@@ -477,6 +477,45 @@ method build(IO() $work-dir = $*CWD) {
     $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle) if $debug;
     $handle.say: '$install-location = ', $install-location.raku if $debug;
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
+    my Str $markdown-path;
+    with %meta«markdown-path» {
+        $markdown-path = %meta«markdown-path»;
+    }
+    my Str:D $markdown-path-name = '';
+    with $markdown-path {
+        $markdown-path-name = $markdown-path.IO.basename;
+    }
+    my Str:D $markdown-path-install = "/usr/local/markdown-path/$markdown-path-name";
+    with %meta«markdown-path-install» {
+        $markdown-path-install = %meta«markdown-path-install»;
+    }
+    my Str:D $markdown-path-install-local = "$home/markdown-path/{$markdown-path-name}";
+    with %meta«markdown-path-install-local» {
+        $markdown-path-install-local = %meta«markdown-path-install-local»;
+    }
+    my Str $markdown-path-install-location;
+    if $*USER == 0 || self.resolve-dir($markdown-path-install, $handle).IO ~~ :rwx {
+        $markdown-path-install-location = self.resolve-dir($markdown-path-install, $handle);
+    } else {
+        $markdown-path-install-location = self.resolve-dir($markdown-path-install-local, $handle);
+    }
+    $markdown-path-install-location.IO.dirname.IO.mkdir;
+    with $markdown-path {
+        $handle.say: '$markdown-path = ', $markdown-path.raku if $debug;
+        $handle.say: '$markdown-path-install-location = ', $markdown-path-install-location.raku if $debug;
+        if $markdown-path.IO ~~ :e {
+            $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $markdown-path.IO.dirname, :out($handle), :err($handle) if $debug;
+            $handle.say: "$?FILE\[$?LINE\] \$markdown-path-install-location == {$markdown-path-install-location}" if $debug;
+            $handle.say: "$?FILE\[$?LINE\] \$markdown-path-install-location.IO.dirname == {$markdown-path-install-location.IO.dirname}" if $debug;
+            $markdown-path-install-location.IO.dirname.IO.mkdir;
+            self.die-handle($handle, "Failed to install markdown-path page {$markdown-path-name}") unless $markdown-path.IO.copy($markdown-path-install-location.IO);
+        }
+        $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $markdown-path-install-location.IO.dirname, :out($handle), :err($handle)
+                                                                                                                                                                          if $debug;
+    }
+    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $to, :out($handle), :err($handle) if $debug;
+    $handle.say: '$install-location = ', $install-location.raku if $debug;
+    $r = run 'pwd', :out($handle), :err($handle) if $debug;
 
     chdir("$install-location".IO);
     $r = run 'pwd', :out($handle), :err($handle) if $debug;

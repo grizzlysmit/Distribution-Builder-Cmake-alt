@@ -1,5 +1,6 @@
 {
-    "markdown-path": "resources/doc/Distribution/Builder/README.md",
+    "markdown-path": "README.md",
+    "markdown-path-alt": "resources/doc/README.md",
     "exts": [
         "rakumod",
         "raku",
