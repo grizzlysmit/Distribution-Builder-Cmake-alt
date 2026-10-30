@@ -143,6 +143,13 @@ method die-handle(IO::Handle:D $handle is copy, Str:D $msg --> Bool) {
     X::AdHoc.from-slurpy(10, False, $msg).throw;
 }
 
+method subst-man-number(Str:D $man-param, $man-number --> Str:D ) {
+    my Str:D $result = $man-param;
+    $result ~~ s:g/ '{' \h*'$man-number' \h* '}' / $man-number /;
+    $result ~~ s:g/ '$man-number' <?wb> / $man-number /;
+    return $result;
+}
+
 multi method resolve-dir(Any $dir, IO::Handle $handle, Bool $relitive-to-home = True --> False){
     self.die-handle($handle, "bad value");
 }
@@ -390,9 +397,13 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: "$?FILE\[$?LINE\]" if $debug;
     self.die-handle($handle, "Failed to install lib: $library") unless $from.IO.copy($to.IO);
     $handle.say: "$?FILE\[$?LINE\]" if $debug;
+    my Str:D $man-number = '1';
+    with %meta«man-number» {
+        $man-number = %meta«man-number»;
+    }
     my $man;
     with %meta«man» {
-        $man = %meta«man»;
+        $man = self.subst-man-number(%meta«man», $man-number);
     }
     my Str:D $man-name = '';
     with $man {
@@ -400,11 +411,11 @@ method build(IO() $work-dir = $*CWD) {
     }
     my Str:D $man-install = "/usr/local/man/man1{$man-name}";
     with %meta«man-install» {
-        $man-install = %meta«man-install»;
+        $man-install = self.subst-man-number(%meta«man-install», $man-number);
     }
-    my $man-install-local = "$home/man/man1/{$man-name}";
+    my $man-install-local = "$home/man/man$man-number/{$man-name}";
     with %meta«man-install-local» {
-        $man-install-local = %meta«man-install-local»;
+        $man-install-local = self.subst-man-number(%meta«man-install-local», $man-number);
     }
     my Str $man-install-location;
     $handle.say: "$?FILE\[$?LINE\] \$man-install == {$man-install}" if $debug;

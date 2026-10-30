@@ -13,9 +13,10 @@ my %build =
                 "1" => "1.0.0",
                 "" => "1"
             },
-            "man"    => "resources/doc/Distribution/Builder/Cmake-alt.1",
-            "man-install" => "/usr/local/man/man1/Distribution::Builder::Cmake-alt.1",
-            "man-install-local" => '$*HOME/man/man1/Distribution::Builder::Cmake-alt.1',
+            "man-number" => "3",
+            "man"    => "resources/doc/Distribution/Builder/Cmake-alt.\$man-number",
+            "man-install" => "/usr/local/man/man\$man-number/Distribution::Builder::Cmake-alt.\$man-number",
+            "man-install-local" => '$*HOME/man/man$man-number/Distribution::Builder::Cmake-alt.$man-number',
             "html" => "resources/doc/Distribution/Builder/Cmake-alt.html",
             "html-install" => "/usr/local/share/html/Distribution::Builder::Cmake-alt.html",
             "html-install-local" => '$HOME/html/Distribution::Builder::Cmake-alt.html',
