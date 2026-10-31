@@ -267,6 +267,8 @@ B«Note:» all files needed by either your C«cmake» command or manual pages et
 
 =begin item2
 
+Here is Gzz::Readline's C«resources» list
+
 =begin code :lang<json>
 
 { ...

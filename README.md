@@ -287,29 +287,31 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 
   * **Note:** all files needed by either your `cmake` command or manual pages etc must be put inside your `"resources"` list for a full working [example see Gzz::Readline](https://github.com/grizzlysmit/gzzReadline.git)
 
-    * ```json
-    { ...
-      .....
-        "resources": [
-            "CMakeLists.txt",
-            "contrib/postinst.in",
-            "debian/final_deb_stuff.sh.in",
-            "images/grizzly.png",
-            "source/gzz_readline.c",
-            "source/gzz_readline.h",
-            "source/gzz_readline.pc.in",
-            "source/gzz_rlprivate.c",
-            "source/gzz_rlprivate.h",
-            "docs/Gzz/Readline.3",
-            "docs/Gzz/Readline.rakudoc",
-            "docs/Gzz/README.md",
-            "docs/README.md",
-            "docs/Gzz/Readline.html"
-        ], 
-       ....
-       ...
-    }
-    ```
+    * Here is Gzz::Readline's `resources` list
+
+      ```json
+      { ...
+        .....
+          "resources": [
+              "CMakeLists.txt",
+              "contrib/postinst.in",
+              "debian/final_deb_stuff.sh.in",
+              "images/grizzly.png",
+              "source/gzz_readline.c",
+              "source/gzz_readline.h",
+              "source/gzz_readline.pc.in",
+              "source/gzz_rlprivate.c",
+              "source/gzz_rlprivate.h",
+              "docs/Gzz/Readline.3",
+              "docs/Gzz/Readline.rakudoc",
+              "docs/Gzz/README.md",
+              "docs/README.md",
+              "docs/Gzz/Readline.html"
+          ], 
+         ....
+         ...
+      }
+      ```
 
     * Note that resources is not used in the paths because it is assumed so the file tree looks like
 
