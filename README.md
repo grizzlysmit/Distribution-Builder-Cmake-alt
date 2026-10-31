@@ -311,7 +311,7 @@ You can see an example of this in action in [this repo](https://github.com/grizz
     }
     ```
 
-      Note that resources is not used in the paths because it is assumed so the file tree looks like
+    * Note that resources is not used in the paths because it is assumed so the file tree looks like
 
     * ```bash
     $ exa -F -lahigHTb  --colour-scale --time-style=full-iso resources/
