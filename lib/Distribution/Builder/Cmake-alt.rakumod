@@ -296,9 +296,10 @@ Here is Gzz::Readline's C«resources» list
 =end code
 
 =end item2
-=item2 Note that resources is not used in the paths because it is assumed so the file tree looks like
-
 =begin item2
+
+Note that resources is not used in the paths because it is assumed so the file tree looks like
+
 
 =begin code :lang<bash>
 
