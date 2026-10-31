@@ -294,6 +294,9 @@ B«Note:» all files needed by either your C«cmake» command or manual pages et
 =end code
 
 Note that resources is not used in the paths because it is assumed so the file tree looks like
+=end item2
+
+=begin item2
 
 =begin code :lang<bash>
 
