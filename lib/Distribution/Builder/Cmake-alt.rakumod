@@ -70,11 +70,7 @@ In your C«META6.json» you'll add the following:
         "docs/Gzz/Readline.3",
         "docs/Gzz/Readline.html",
         "docs/Gzz/Readline.rakudoc",
-        "docs/Gzz/README.md",
-        "docs/Gzz/Readline.1",
-        "docs/Gzz/Readline.html",
         "docs/README.md",
-        "docs/Gzz/Readline.1",
         "docs/Gzz/Readline.html"
     ], 
     "bin": {
@@ -295,9 +291,54 @@ B«Note:» all files needed by either your C«cmake» command or manual pages et
    ...
 }
 
-=end   code
+=end code
 
-=end   item2
+Note that resources is not used in the paths because it is assumed so the file tree looks like
+
+=begin code :lang<bash>
+
+$ exa -F -lahigHTb  --colour-scale --time-style=full-iso resources/
+   inode Permissions Links  Size User        Group       Date Modified                       Name
+28084265 drwxrwxr-x      8     - grizzlysmit grizzlysmit 2026-10-30 13:58:05.679055658 +1100 resources/
+28084595 drwxrwxr-x      4     - grizzlysmit grizzlysmit 2026-10-28 21:23:01.265899569 +1100 ├── build/
+...
+....
+28085823 lrwxrwxrwx      1     - grizzlysmit grizzlysmit 2026-10-28 21:22:46.556405385 +1100 │   ├── libgzz_readline.so -> libgzz_readline.so.1*
+28085822 lrwxrwxrwx      1     - grizzlysmit grizzlysmit 2026-10-28 21:22:46.556405385 +1100 │   ├── libgzz_readline.so.1 -> libgzz_readline.so.1.0.0*
+28085821 .rwxrwxr-x      1  22Ki grizzlysmit grizzlysmit 2026-10-28 21:22:46.567405668 +1100 │   ├── libgzz_readline.so.1.0.0*
+28085819 .rw-rw-r--      1 9.5Ki grizzlysmit grizzlysmit 2026-10-28 21:22:39.791695056 +1100 │   ├── Makefile
+28085815 .rwxrwxr-x      1    60 grizzlysmit grizzlysmit 2026-10-28 21:22:39.778936354 +1100 │   └── postinst*
+26244029 .rw-rw-r--      1    61 grizzlysmit grizzlysmit 2022-12-30 22:27:29.444249299 +1100 ├── changelog
+28085804 .rw-rw-r--      1 3.4Ki grizzlysmit grizzlysmit 2026-10-28 21:21:04.135785647 +1100 ├── CMakeLists.txt
+26242805 drwxrwxr-x      2     - grizzlysmit grizzlysmit 2022-12-31 16:44:05.592666840 +1100 ├── contrib/
+26244290 .rwxrwxr-x      1    60 grizzlysmit grizzlysmit 2022-12-29 10:51:29.965286298 +1100 │   └── postinst.in*
+26242806 drwxrwxr-x      2     - grizzlysmit grizzlysmit 2026-10-24 00:48:26.393599183 +1100 ├── debian/
+26244291 .rwxrwxr-x      1   496 grizzlysmit grizzlysmit 2022-12-29 07:30:22.153075041 +1100 │   └── final_deb_stuff.sh.in*
+28084608 drwxrwxr-x      3     - grizzlysmit grizzlysmit 2026-10-31 01:02:37.529237579 +1100 ├── docs/
+26244292 .rw-r--r--      1   774 grizzlysmit grizzlysmit 2022-12-30 21:59:55.561325168 +1100 │   ├── CPack.Description.txt
+28084500 drwxrwxr-x      2     - grizzlysmit grizzlysmit 2026-10-31 19:58:49.625110696 +1100 │   ├── Gzz/
+28085319 .rw-rw-r--      1 2.1Ki grizzlysmit grizzlysmit 2026-10-31 20:01:05.039040419 +1100 │   │   ├── Readline.3
+28084501 .rw-rw-r--      1 7.4Ki grizzlysmit grizzlysmit 2026-10-31 20:01:06.177958625 +1100 │   │   ├── Readline.html
+28084497 .rw-rw-r--      1   343 grizzlysmit grizzlysmit 2026-10-22 14:42:54.106372355 +1100 │   │   ├── Readline.rakudoc
+28084935 .rw-rw-r--      1 1.9Ki grizzlysmit grizzlysmit 2026-10-31 20:01:07.125614606 +1100 │   │   └── README.md
+26244293 .rw-r--r--      1  34Ki grizzlysmit grizzlysmit 2022-12-27 18:58:25.129677917 +1100 │   ├── LICENCE
+28085295 .rw-rw-r--      1 1.9Ki grizzlysmit grizzlysmit 2026-10-31 20:01:07.126493436 +1100 │   └── README.md
+26242808 drwxrwxr-x      2     - grizzlysmit grizzlysmit 2022-12-30 22:13:31.908697908 +1100 ├── images/
+26244295 .rw-r--r--      1  18Ki grizzlysmit grizzlysmit 2022-12-30 22:12:52.031518986 +1100 │   └── grizzly.png
+26242809 drwxrwxr-x      2     - grizzlysmit grizzlysmit 2026-10-29 17:28:02.918677961 +1100 └── source/
+26244296 .rw-rw-r--      1 7.3Ki grizzlysmit grizzlysmit 2022-12-26 19:06:56.459847474 +1100     ├── gzz_readline.c
+26244297 .rw-rw-r--      1 2.4Ki grizzlysmit grizzlysmit 2022-12-26 22:21:16.000000000 +1100     ├── gzz_readline.h
+26244298 .rw-rw-r--      1   310 grizzlysmit grizzlysmit 2022-12-26 22:39:30.491665587 +1100     ├── gzz_readline.pc.in
+26244299 .rw-rw-r--      1 3.2Ki grizzlysmit grizzlysmit 2022-12-26 16:43:09.047752091 +1100     ├── gzz_rlprivate.c
+26244300 .rw-rw-r--      1  21Ki grizzlysmit grizzlysmit 2022-12-26 19:02:45.969064765 +1100     └── gzz_rlprivate.h
+
+
+=end code
+
+=end item2
+
+
+
 
 =end pod
 
