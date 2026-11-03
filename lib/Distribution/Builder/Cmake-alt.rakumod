@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<1.0.30>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<1.0.31>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -22,7 +22,7 @@ Table of Contents
 
 =NAME Distribution::Builder::Cmake-alt 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 1.0.30
+=VERSION 1.0.31
 =TITLE Distribution::Builder::Cmake-alt
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -418,7 +418,7 @@ method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, *@args --> Bool:D) {
         $handle.say: qq[$?FILE\[$?LINE\] {@cmd.join(' ')}.] if $debug;
         $r = run |@cmd, :out($handle), :err($handle)        if $debug;
     }
-    return $r.exitcode == 0;
+    return $debug && ($r.exitcode == 0);
 } #`««« method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, *@args --> Bool:D) »»»
 
 
