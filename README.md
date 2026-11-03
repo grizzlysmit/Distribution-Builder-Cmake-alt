@@ -21,7 +21,7 @@ Table of Contents
 NAME
 ====
 
-Gzz::Readline 
+Distribution::Builder::Cmake-alt 
 
 AUTHOR
 ======
@@ -31,12 +31,12 @@ Francis Grizzly Smit (grizzly@smit.id.au)
 VERSION
 =======
 
-1.0.24
+1.0.25
 
 TITLE
 =====
 
-Gzz::Readline
+Distribution::Builder::Cmake-alt
 
 SUBTITLE
 ========
@@ -95,7 +95,7 @@ Assuming your Raku project keeps its CMake project in a folder called `my-cmake-
 { 
     ....
     "provides": {
-        "Gzz::Readline":            "lib/Gzz/Readline.rakumod"
+        "Distribution::Builder::Cmake-alt":            "lib/Gzz/Readline.rakumod"
     },
     "resources": [
         "CMakeLists.txt",
@@ -114,7 +114,7 @@ Assuming your Raku project keeps its CMake project in a folder called `my-cmake-
         "docs/Gzz/Readline.html"
     ], 
     "bin": {
-        "Gzz::Readline.rakudoc": "doc/Gzz/Readline.rakudoc"
+        "Distribution::Builder::Cmake-alt.rakudoc": "doc/Gzz/Readline.rakudoc"
     },
     "depends": [
         "Distribution::Builder::Cmake-alt",
@@ -143,14 +143,14 @@ Assuming your Raku project keeps its CMake project in a folder called `my-cmake-
         ],
         "man-number" : "3",
         "man"    : "resources/docs/Gzz/Readline.$man-number",
-        "man-install" : "/usr/local/man/man$man-number/Gzz::Readline.$man-number",
-        "man-install-local" : "$*HOME/man/man$man-number/Gzz::Readline.$man-number",
+        "man-install" : "/usr/local/man/man$man-number/Distribution::Builder::Cmake-alt.$man-number",
+        "man-install-local" : "$*HOME/man/man$man-number/Distribution::Builder::Cmake-alt.$man-number",
         "html" : "resources/docs/Gzz/Readline.html",
-        "html-install" : "/usr/local/share/html/Gzz::Readline.html",
-        "html-install-local" : "$HOME/html/Gzz::Readline.html",
+        "html-install" : "/usr/local/share/html/Distribution::Builder::Cmake-alt.html",
+        "html-install-local" : "$HOME/html/Distribution::Builder::Cmake-alt.html",
         "markdown-path" : "resources/docs/README.md",
-        "markdown-path-install" : "/usr/local/share/Gzz::Readline/README.md",
-        "markdown-path-install-local" : "$HOME/docs/Gzz::Readline/README.md",
+        "markdown-path-install" : "/usr/local/share/Distribution::Builder::Cmake-alt/README.md",
+        "markdown-path-install-local" : "$HOME/docs/Distribution::Builder::Cmake-alt/README.md",
         "source": "source",
         "log":    "/dev/tty",
         "debug":  true
@@ -333,9 +333,9 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 
 (Obviously, you'll need Make and CMake installed and what ever compiler your project uses in this case `g++`)
 
-  * **Note:** all files needed by either your `cmake` command or manual pages etc must be put inside your `"resources"` list for a full working [example see Gzz::Readline](https://github.com/grizzlysmit/gzzReadline.git)
+  * **Note:** all files needed by either your `cmake` command or manual pages etc must be put inside your `"resources"` list for a full working [example see Distribution::Builder::Cmake-alt](https://github.com/grizzlysmit/gzzReadline.git)
 
-    * Here is Gzz::Readline's `resources` list
+    * Here is Distribution::Builder::Cmake-alt's `resources` list
 
       ```json
       { ...

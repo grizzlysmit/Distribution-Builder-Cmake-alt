@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<1.0.24>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<1.0.25>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -20,10 +20,10 @@ Table of Contents
 =item1 L<COPYRIGHT|#copyright>
 =item1 L<Introduction|#introduction>
 
-=NAME Gzz::Readline 
+=NAME Distribution::Builder::Cmake-alt 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 1.0.24
-=TITLE Gzz::Readline
+=VERSION 1.0.25
+=TITLE Distribution::Builder::Cmake-alt
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
 =COPYRIGHT This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0 L<LICENSE|https://github.com/grizzlysmit/Distribution-Builder-Cmake-alt/blob/main/LICENSE>
@@ -81,7 +81,7 @@ In your C«META6.json» you'll add the following:
 { 
     ....
     "provides": {
-        "Gzz::Readline":            "lib/Gzz/Readline.rakumod"
+        "Distribution::Builder::Cmake-alt":            "lib/Gzz/Readline.rakumod"
     },
     "resources": [
         "CMakeLists.txt",
@@ -100,7 +100,7 @@ In your C«META6.json» you'll add the following:
         "docs/Gzz/Readline.html"
     ], 
     "bin": {
-        "Gzz::Readline.rakudoc": "doc/Gzz/Readline.rakudoc"
+        "Distribution::Builder::Cmake-alt.rakudoc": "doc/Gzz/Readline.rakudoc"
     },
     "depends": [
         "Distribution::Builder::Cmake-alt",
@@ -129,14 +129,14 @@ In your C«META6.json» you'll add the following:
         ],
         "man-number" : "3",
         "man"    : "resources/docs/Gzz/Readline.$man-number",
-        "man-install" : "/usr/local/man/man$man-number/Gzz::Readline.$man-number",
-        "man-install-local" : "$*HOME/man/man$man-number/Gzz::Readline.$man-number",
+        "man-install" : "/usr/local/man/man$man-number/Distribution::Builder::Cmake-alt.$man-number",
+        "man-install-local" : "$*HOME/man/man$man-number/Distribution::Builder::Cmake-alt.$man-number",
         "html" : "resources/docs/Gzz/Readline.html",
-        "html-install" : "/usr/local/share/html/Gzz::Readline.html",
-        "html-install-local" : "$HOME/html/Gzz::Readline.html",
+        "html-install" : "/usr/local/share/html/Distribution::Builder::Cmake-alt.html",
+        "html-install-local" : "$HOME/html/Distribution::Builder::Cmake-alt.html",
         "markdown-path" : "resources/docs/README.md",
-        "markdown-path-install" : "/usr/local/share/Gzz::Readline/README.md",
-        "markdown-path-install-local" : "$HOME/docs/Gzz::Readline/README.md",
+        "markdown-path-install" : "/usr/local/share/Distribution::Builder::Cmake-alt/README.md",
+        "markdown-path-install-local" : "$HOME/docs/Distribution::Builder::Cmake-alt/README.md",
         "source": "source",
         "log":    "/dev/tty",
         "debug":  true
@@ -313,13 +313,13 @@ You can see an example of this in action in [this repo](https://github.com/grizz
 
 =begin item1 
 
-B«Note:» all files needed by either your C«cmake» command or manual pages etc must be put inside your C«"resources"» list for a full working L<example see Gzz::Readline|https://github.com/grizzlysmit/gzzReadline.git>
+B«Note:» all files needed by either your C«cmake» command or manual pages etc must be put inside your C«"resources"» list for a full working L<example see Distribution::Builder::Cmake-alt|https://github.com/grizzlysmit/gzzReadline.git>
 
 =end item1
 
 =begin item2
 
-Here is Gzz::Readline's C«resources» list
+Here is Distribution::Builder::Cmake-alt's C«resources» list
 
 =begin code :lang<json>
 
