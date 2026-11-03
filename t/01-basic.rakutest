@@ -27,8 +27,8 @@ my %build =
             "markdown-path-install" => "/usr/local/share/Distribution::Builder::Cmake-alt/README.md",
             "markdown-path-install-local" => '$HOME/docs/Distribution::Builder::Cmake-alt/README.md',
             "source" => "",
-            "debug"  => False,
-            "log"    => "/dev/null";
+            "debug"  => True,
+            "log"    => "/dev/tty";
 
 my %meta = Map.new: (:%build);
 
