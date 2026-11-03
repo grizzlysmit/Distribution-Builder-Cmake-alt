@@ -11,6 +11,7 @@
       "Pod::To::HTML",
       "Pod::To::Markdown",
       "File::Directory::Tree",
+      "eza:from<bin>",
       "g++:from<bin>",
 	  "cmake:from<bin>",
 	  "make:from<bin>"
@@ -35,5 +36,5 @@
   ],
   "test-depends": [
   ],
-  "version": "1.0.25"
+  "version": "1.0.26"
 }
