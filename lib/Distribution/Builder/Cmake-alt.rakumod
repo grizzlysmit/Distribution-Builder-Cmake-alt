@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<1.0.26>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<1.0.27>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -22,7 +22,7 @@ Table of Contents
 
 =NAME Distribution::Builder::Cmake-alt 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 1.0.26
+=VERSION 1.0.27
 =TITLE Distribution::Builder::Cmake-alt
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -405,6 +405,21 @@ my $home = $*HOME;
 
 has %.meta;
 
+method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, *@args --> Bool:D) {
+    my Proc $r;
+    if shell 'which exa' {
+        my @cmd = 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always';
+        @cmd.push: @args if @args;
+        $handle.say: qq[$?FILE\[$?LINE\] {@cmd.join(' ')}.] if $debug;
+        $r = run |@cmd, :out($handle), :err($handle)        if $debug;
+    } else {
+        my @cmd = 'ls', '--color=auto', '-Flaghi', '--color';
+        @cmd.push: @args if @args;
+        $handle.say: qq[$?FILE\[$?LINE\] {@cmd.join(' ')}.] if $debug;
+        $r = run |@cmd, :out($handle), :err($handle)        if $debug;
+    }
+}
+
 
 method die-handle(IO::Handle:D $handle is copy, Str:D $msg --> Bool) {
     with %!meta«build»«log» {
@@ -669,13 +684,10 @@ method build(IO() $work-dir = $*CWD) {
     self.die-handle($handle, qq[field "lib" must be supplied inside field "build"]) without %meta«lib»;
 
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    $handle.say: qq[$?FILE\[$?LINE\]   exa -F -laahigHb --color-scale --time-style=full-iso --icons=always .] if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug;
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    $handle.say: qq[$?FILE\[$?LINE\]  exa -F -laahigHb --color-scale --time-style=full-iso --icons=always doc/] if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', 'doc/', :out($handle), :err($handle) if $debug;
-    $handle.say: qq[$?FILE\[$?LINE\]  exa -F -laahigHb --color-scale --time-style=full-iso --icons=always doc/Distribution/Builder/] if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', 'doc/Distribution/Builder/', :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug, 'doc/';
+    self.ls-l: $handle, :$debug, 'doc/Distribution/Builder/';
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
 
     # Prepare to build
@@ -694,11 +706,9 @@ method build(IO() $work-dir = $*CWD) {
     }
     $handle.say: '$cmake-src-dir = ', $cmake-src-dir.raku if $debug;
     if $cmake-src-dir eq '.' || $cmake-src-dir eq '' {
-        $handle.say: qq[$?FILE\[$?LINE\]  exa, -F, -laahigHb, --color-scale, --time-style=full-iso, --icons=always, .] if $debug;
-        $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
+        self.ls-l: $handle, :$debug;
     } else {
-        $handle.say: qq[$?FILE\[$?LINE\]  exa, -F, -laahigHb, --color-scale, --time-style=full-iso, --icons=always, $cmake-src-dir] if $debug;
-        $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $cmake-src-dir, :out($handle), :err($handle) if $debug;
+        self.ls-l: $handle, :$debug, $cmake-src-dir;
     }
     #self.die-handle($handle, "$cmake-src-dir is not a directory.") unless $cmake-src-dir eq '' || $cmake-src-dir eq '.' || ($cmake-src-dir.IO.e && $cmake-src-dir.IO.d);
 
@@ -725,14 +735,12 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: '$build-dir = ', $build-dir.raku if $debug;
     chdir("build".IO);
     $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '..', :out($handle), :err($handle) if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', "../$source", :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug, '..';
     $handle.say: "cmake .." if $debug;
-    $r = run 'cmake', '..', :out($handle), :err($handle);
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug, '.';
     $handle.say: "make" if $debug;
     $r = run 'make', :out($handle), :err($handle);
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug, '.';
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
     if $build-dir eq 'build' || $build-dir eq './build' {
         chdir('..');
@@ -785,7 +793,7 @@ method build(IO() $work-dir = $*CWD) {
     }
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
     $handle.say: "$?FILE\[$?LINE\] \$library == {$library}" if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', '.', :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug, '.';
 
 
     # Install
@@ -884,7 +892,7 @@ method build(IO() $work-dir = $*CWD) {
     # install library symbolic links #
     chdir("$install-location".IO);
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', $install-location, :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug, $install-location;
     if %libraries {
         my @libs = %libraries.pairs.sort( { $^a.value leg $^b.value } ).reverse;
         $handle.say: '@libs = ', @libs.raku if $debug;
@@ -896,6 +904,6 @@ method build(IO() $work-dir = $*CWD) {
         }
     }
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    $r = run 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always', :out($handle), :err($handle) if $debug;
+    self.ls-l: $handle, :$debug;
     True;
 } # method build(IO() $work-dir = $*CWD)  #
