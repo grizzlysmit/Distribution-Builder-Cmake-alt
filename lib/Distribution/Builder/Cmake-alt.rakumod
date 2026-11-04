@@ -1,6 +1,6 @@
 use v6.d;
 use File::Directory::Tree;
-unit class Distribution::Builder::Cmake-alt:ver<1.0.31>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
+unit class Distribution::Builder::Cmake-alt:ver<1.0.32>:auth<Francis Grizzly Smit (grizzly@smit.id.au)>;
 
 =begin pod
 
@@ -22,7 +22,7 @@ Table of Contents
 
 =NAME Distribution::Builder::Cmake-alt 
 =AUTHOR Francis Grizzly Smit (grizzly@smit.id.au)
-=VERSION 1.0.31
+=VERSION 1.0.32
 =TITLE Distribution::Builder::Cmake-alt
 =SUBTITLE A Raku module for building CMake projects to make .so files and installing them in into a chosen install directory.
 
@@ -405,10 +405,10 @@ my $home = $*HOME;
 
 has %.meta;
 
-method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, *@args --> Bool:D) {
+method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, Bool:D :$tree = False, *@args --> Bool:D) {
     my Proc $r;
     if shell 'which exa' {
-        my @cmd = 'exa', '-F', '-laahigHb', '--color-scale', '--time-style=full-iso', '--icons=always';
+        my @cmd = 'exa', '-F', ($tree ?? '-laahigHb' !! '-lahigHTb'), '--color-scale', '--time-style=full-iso', '--icons=always';
         @cmd.push: @args if @args;
         $handle.say: qq[$?FILE\[$?LINE\] {@cmd.join(' ')}.] if $debug;
         $r = run |@cmd, :out($handle), :err($handle)        if $debug;
@@ -419,7 +419,7 @@ method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, *@args --> Bool:D) {
         $r = run |@cmd, :out($handle), :err($handle)        if $debug;
     }
     return $debug && ($r.exitcode == 0);
-} #`««« method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, *@args --> Bool:D) »»»
+} #`««« method ls-l(IO::Handle:D $handle, Bool:D :$debug = False, Bool:D :$tree = False, *@args --> Bool:D) »»»
 
 
 method die-handle(IO::Handle:D $handle is copy, Str:D $msg --> Bool) {
@@ -687,7 +687,7 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
     self.ls-l: $handle, :$debug;
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    self.ls-l: $handle, :$debug, 'doc/';
+    self.ls-l: $handle, :$debug, :tree, 'doc/';
     self.ls-l: $handle, :$debug, 'doc/Distribution/Builder/';
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
 
@@ -891,9 +891,9 @@ method build(IO() $work-dir = $*CWD) {
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
 
     # install library symbolic links #
+    self.ls-l: $handle, :$debug, $install-location;
     chdir("$install-location".IO);
     $handle.say: "$?FILE\[$?LINE\] pwd" if $debug; $r = run 'pwd', :out($handle), :err($handle) if $debug;
-    self.ls-l: $handle, :$debug, $install-location;
     if %libraries {
         my @libs = %libraries.pairs.sort( { $^a.value leg $^b.value } ).reverse;
         $handle.say: '@libs = ', @libs.raku if $debug;
